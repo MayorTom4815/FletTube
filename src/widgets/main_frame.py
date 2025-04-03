@@ -10,12 +10,15 @@ class MainFrame(ft.Container):
         self.bgcolor = ft.colors.SURFACE_VARIANT
         self.padding = ft.padding.all(20)
         self.border_radius = 10
+        self.width = 600
 
         self.video = api.Video()
 
-        self.build()
-
     def build(self) -> None:
+        self.download_alert = ft.AlertDialog(
+            title=ft.Text("Download..."), content=ft.ProgressBar(expand=True)
+        )
+
         self.title_video = ft.Text(
             self.video.title,
             weight=ft.FontWeight.BOLD,
@@ -31,18 +34,19 @@ class MainFrame(ft.Container):
         self.image_video = ft.Image(self.video.thumbnail, width=250)
 
         self.entry_search = ft.TextField(
-            label="URL",
+            label="YouTube URL video",
+            prefix_icon=ft.Icons.LINK,
             expand=True,
             on_submit=lambda _: self.search_video(),
         )
 
         self.download_button = ft.FilledButton(
             "Download",
-            icon=ft.icons.SAVE,
+            icon=ft.Icons.SAVE,
             disabled=True,
             expand=True,
             width=500,
-            on_click=lambda _: Thread(target=self.download_video).run(),
+            on_click=self.download_video,
         )
 
         self.content = ft.Column(
@@ -51,7 +55,7 @@ class MainFrame(ft.Container):
             controls=[
                 ft.Container(
                     alignment=ft.alignment.center,
-                    bgcolor=ft.colors.PRIMARY_CONTAINER,
+                    bgcolor=ft.Colors.PRIMARY_CONTAINER,
                     padding=ft.padding.all(10),
                     border_radius=10,
                     content=ft.Column(
@@ -62,13 +66,13 @@ class MainFrame(ft.Container):
                                 [
                                     ft.Row(
                                         [
-                                            ft.Icon(ft.icons.VIDEOCAM),
+                                            ft.Icon(ft.Icons.VIDEOCAM),
                                             self.title_video,
                                         ]
                                     ),
                                     ft.Row(
                                         [
-                                            ft.Icon(ft.icons.PERSON_SHARP),
+                                            ft.Icon(ft.Icons.PERSON_SHARP),
                                             self.author_video,
                                         ]
                                     ),
@@ -82,9 +86,17 @@ class MainFrame(ft.Container):
             ],
         )
 
-    def download_video(self) -> None:
+    def download_video(self, e) -> None:
+        self.page.open(self.download_alert)
+
         download_path = self.page.client_storage.get("DOWNLOAD_PATH")
-        api.download_video(self.video.url, download_path)
+        only_sound = self.page.client_storage.get("ONLY_SOUND")
+
+        action = Thread(api.download_video(self.video.url, download_path, only_sound))
+        action.run()
+
+        if not action.is_alive():
+            self.page.close(self.download_alert)
 
     def update_info(self) -> None:
         self.title_video.value = self.video.title

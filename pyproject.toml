@@ -8,7 +8,7 @@ authors = [
     { name = "MayorTom4815", email = "domiisac2004@proton.me" }
 ]
 dependencies = [
-  "flet==0.27.1",
+  "flet>=0.27.0",
   "flet-permission-handler>=0.1.0",
   "pytubefix>=8.12.2",
 ]
@@ -33,16 +33,17 @@ path = "src"
 
 [tool.uv]
 dev-dependencies = [
-    "flet[all]==0.27.1",
+    "flet[all]>=0.27.0",
 ]
 
 [tool.poetry]
 package-mode = false
 
 [tool.poetry.group.dev.dependencies]
-flet = {extras = ["all"], version = "0.27.1"}
+flet = {extras = ["all"], version = "0.27.6"}
 
 [tool.flet.android]
 dependencies = [
-    "pytubefix"
+    "pytubefix",
+    "flet-permission-handler"
 ]

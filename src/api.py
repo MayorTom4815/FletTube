@@ -22,10 +22,14 @@ def query_video(url: str) -> Video:
         return Video()
 
 
-def download_video(url: str, path: str) -> None:
+def download_video(url: str, path: str, only_sound: bool) -> None:
     try:
         yt = pt.YouTube(url)
-        stream = yt.streams.get_audio_only()
+        stream = (
+            yt.streams.get_audio_only()
+            if only_sound
+            else yt.streams.get_highest_resolution()
+        )
         stream.download(output_path=expanduser(path))
 
     except:
